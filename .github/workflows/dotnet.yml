@@ -7,22 +7,54 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  build-and-test-backend:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        cd WealthWeaver
+        dotnet restore
       
     - name: Build
-      run: dotnet build --no-restore
+      run: |
+        cd WealthWeaver
+        dotnet build --no-restore
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal
-      
+      run: |
+        cd WealthWeaver
+        dotnet test --no-build --verbosity normal
+
+  build-and-test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+    
+    - name: Install dependencies
+      run: |
+        cd WealthWeaverFrontend
+        npm ci
+    
+    - name: Build
+      run: |
+        cd WealthWeaverFrontend
+        npm run build
+    
+    - name: Test
+      run: |
+        cd WealthWeaverFrontend
+        npm test
