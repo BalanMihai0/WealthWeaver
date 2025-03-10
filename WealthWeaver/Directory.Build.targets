@@ -1,0 +1,5 @@
+<Project>
+  <Target Name="CustomCleanStep" BeforeTargets="Clean">
+    <RemoveDir Directories="$(SolutionDir)\temp\" />
+  </Target>
+</Project>

@@ -1,0 +1,45 @@
+{
+  "bankName": "Revolut",
+  "shortName": "Revolut",
+  "accountName": "Checking Account",
+  "last4": "0123",
+  "balance": "3,567.23",
+  "color": "blue",
+  "recentTransactions": [
+    {
+      "name": "Jumbo",
+      "location": "StrijpS , 54321",
+      "isCredit": false,
+      "postedDate": "12.12.2021",
+      "amount": "32.87"
+    },
+    {
+      "name": "Albert Heijn",
+      "location": "That Street , 54322",
+      "isCredit": false,
+      "postedDate": "12.13.2021",
+      "amount": "156.21"
+    },
+    {
+      "name": "Ikea (Return)",
+      "location": "Main Road , 54323",
+      "isCredit": true,
+      "postedDate": "12.14.2021",
+      "amount": "47.90"
+    },
+    {
+      "name": "Hizmet",
+      "location": "Kruisstraat , 54324",
+      "isCredit": false,
+      "postedDate": "12.15.2021",
+      "amount": "8.11"
+    },
+    {
+      "name": "Hizmet",
+      "location": "Kruisstraat , 54324",
+      "isCredit": false,
+      "postedDate": "12.16.2021",
+      "amount": "9.81"
+    }
+  ]
+}

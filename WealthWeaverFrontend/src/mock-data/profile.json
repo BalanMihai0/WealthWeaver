@@ -1,0 +1,7 @@
+{
+  "username": "john_smith",
+  "email": "john_smith@email.com",
+  "phone": "+1234567890",
+  "alertPreference": "Email & SMS",
+  "alerts": ["all transactions above $500.00"]
+}
