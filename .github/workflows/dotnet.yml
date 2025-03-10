@@ -8,53 +8,60 @@ on:
 
 jobs:
   build-and-test-backend:
-    runs-on: ubuntu-latest
+    name: Build and Test Backend
+    runs-on: windows-latest  # Changed to Windows for MSBuild
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     
-    - name: Restore dependencies
+    - name: Restore NuGet packages
       run: |
         cd WealthWeaver
-        dotnet restore
-      
-    - name: Build
+        nuget restore WealthWeaver.sln
+    
+    - name: Build Backend
       run: |
         cd WealthWeaver
-        dotnet build --no-restore
-      
-    - name: Test
+        msbuild /p:Configuration=Release
+    
+    - name: Test Backend
       run: |
         cd WealthWeaver
         dotnet test --no-build --verbosity normal
 
   build-and-test-frontend:
+    name: Build and Test Frontend
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
     
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
     
-    - name: Install dependencies
+    - name: Install Frontend Dependencies
       run: |
         cd WealthWeaverFrontend
         npm ci
     
-    - name: Build
+    - name: Build Frontend
       run: |
         cd WealthWeaverFrontend
         npm run build
     
-    - name: Test
+    - name: Test Frontend
       run: |
         cd WealthWeaverFrontend
         npm test
