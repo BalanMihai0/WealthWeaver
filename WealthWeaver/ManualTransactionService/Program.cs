@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using ManualTransactionService.Services;
 
-namespace BankingService
+namespace ManualTransactionService
 {
     internal static class Program
     {
@@ -9,13 +9,30 @@ namespace BankingService
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add configuration from env.jsonc
-            builder.Configuration.AddJsonFile("env.jsonc", optional: false, reloadOnChange: true);
+            // Configure CosmosDB
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            var cosmosConfig = builder.Configuration.GetSection("CosmosDb");
+            var endpointUri = cosmosConfig["EndpointUri"];
+            var primaryKey = cosmosConfig["PrimaryKey"];
 
+            ArgumentException.ThrowIfNullOrEmpty(endpointUri);
+            ArgumentException.ThrowIfNullOrEmpty(primaryKey);
+
+            builder.Services.AddSingleton<CosmosClient>(sp =>
+            {
+                var cosmosClientOptions = new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Gateway
+                };
+                return new CosmosClient(endpointUri, primaryKey, cosmosClientOptions);
+            });
+            builder.Services.AddScoped<ITransactionProcessor, TransactionProcessor>();
+            
             // Configure services
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpClient();
             builder.Services.AddLogging();
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddControllers();
 
@@ -25,16 +42,6 @@ namespace BankingService
             builder.Logging.AddConsole();
 
             builder.Services.AddControllers();
-            builder.Services.AddSingleton<CosmosClient>(sp =>
-            {
-                var cosmosClientOptions = new CosmosClientOptions
-                {
-                    ConnectionMode = ConnectionMode.Gateway
-                };
-                return new CosmosClient("https://localhost:8081", "your_cosmosdb_key", cosmosClientOptions);
-            });
-            builder.Services.AddScoped<ITransactionProcessor, TransactionProcessor>();
-
 
             var app = builder.Build();
 
@@ -54,4 +61,3 @@ namespace BankingService
         }
     }
 }
-

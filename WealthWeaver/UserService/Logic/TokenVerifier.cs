@@ -5,7 +5,7 @@ using UserService.Interfaces;
 
 namespace UserService.Services
 {
-    internal class TokenVerifier : ITokenVerifier
+    internal sealed class TokenVerifier : ITokenVerifier
     {
         private readonly IConfiguration _configuration;
 

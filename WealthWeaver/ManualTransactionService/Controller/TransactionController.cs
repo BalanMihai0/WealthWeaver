@@ -18,14 +18,16 @@ namespace BankingService.Controllers
         [HttpPost("addtransaction")]
         public async Task<IActionResult> AddTransaction([FromBody] TransactionModel request)
         {
-            await _transactionService.AddTransactionAsync(request);
+            ArgumentNullException.ThrowIfNull(request);
+            await _transactionService.AddTransactionAsync(request).ConfigureAwait(true);
             return Ok();
         }
 
         [HttpPost("removetransaction")]
-        public async Task<IActionResult> RemoveTransactions([FromBody] TransactionModel request)
+        public async Task<IActionResult> RemoveTransactions([FromBody] string requestId)
         {
-            await _transactionService.RemoveTransactionAsync(request);
+            ArgumentNullException.ThrowIfNull(requestId);
+            await _transactionService.RemoveTransactionAsync(requestId).ConfigureAwait(true);
             return Ok();
         }
     }

@@ -17,9 +17,6 @@
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.0.0.68202" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.3.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="7.3.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.3.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
 	<PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.31.0" />
   </ItemGroup>
