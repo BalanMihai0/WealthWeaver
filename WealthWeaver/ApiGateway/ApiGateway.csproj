@@ -10,5 +10,5 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Ocelot" />
 	<PackageReference Include="Swashbuckle.AspNetCore" />
-
+  </ItemGroup>
 </Project>
