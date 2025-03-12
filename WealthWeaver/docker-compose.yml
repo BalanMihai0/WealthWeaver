@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  manualtransactionservice:
+    build:
+      context: ./ManualTransactionService
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  bankingservice:
+    build:
+      context: ./BankingService
+      dockerfile: Dockerfile
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  userservice:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    ports:
+      - "5003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
