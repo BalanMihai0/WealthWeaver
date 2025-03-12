@@ -1,7 +1,7 @@
-﻿using UserService.Interfaces;
-using UserService.Services;
+﻿using Microsoft.Azure.Cosmos;
+using ManualTransactionService.Services;
 
-namespace UserService
+namespace BankingService
 {
     internal static class Program
     {
@@ -9,26 +9,34 @@ namespace UserService
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add configuration from env.jsonc
+            builder.Configuration.AddJsonFile("env.jsonc", optional: false, reloadOnChange: true);
+
             // Configure services
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpClient();
             builder.Services.AddLogging();
-            builder.Services.AddSwaggerGen();
 
             builder.Services.AddControllers();
-            builder.Services.AddSingleton<ITokenVerifier, TokenVerifier>();
-            builder.Services.AddSingleton<RabbitMqListener>();
 
             // Configure logging
             builder.Logging.ClearProviders();
             builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
             builder.Logging.AddConsole();
 
-            var app = builder.Build();
+            builder.Services.AddControllers();
+            builder.Services.AddSingleton<CosmosClient>(sp =>
+            {
+                var cosmosClientOptions = new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Gateway
+                };
+                return new CosmosClient("https://localhost:8081", "your_cosmosdb_key", cosmosClientOptions);
+            });
+            builder.Services.AddScoped<ITransactionProcessor, TransactionProcessor>();
 
-            // Start RabbitMQ listener
-            var listener = app.Services.GetRequiredService<RabbitMqListener>();
-            listener.StartListening();
+
+            var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
             {
