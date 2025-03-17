@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="env.jsonc" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Going.Plaid" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />

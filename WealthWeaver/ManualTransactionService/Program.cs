@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using ManualTransactionService.Services;
+using System.Net.Http;
 
 namespace ManualTransactionService
 {
@@ -20,14 +21,24 @@ namespace ManualTransactionService
 
             builder.Services.AddSingleton<CosmosClient>(sp =>
             {
+#pragma warning disable S4830 // Server certificates should be verified during SSL/TLS connections - CosmosDB emulator SSL
+                var httpClientHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true
+                };
+#pragma warning restore S4830 // Server certificates should be verified during SSL/TLS connections
+
                 var cosmosClientOptions = new CosmosClientOptions
                 {
+                    HttpClientFactory = () => new HttpClient(httpClientHandler),
                     ConnectionMode = ConnectionMode.Gateway
                 };
+
                 return new CosmosClient(endpointUri, primaryKey, cosmosClientOptions);
             });
+
             builder.Services.AddScoped<ITransactionProcessor, TransactionProcessor>();
-            
+
             // Configure services
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpClient();

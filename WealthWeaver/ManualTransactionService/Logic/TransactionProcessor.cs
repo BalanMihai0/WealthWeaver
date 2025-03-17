@@ -13,19 +13,19 @@ namespace ManualTransactionService.Services
         public TransactionProcessor(CosmosClient cosmosClient)
         {
             _cosmosClient = cosmosClient;
-            _container = _cosmosClient.GetContainer("DatabaseId", "ContainerId");
+            _container = CosmosDbInitializer.InitializeCosmosResourcesAsync(_cosmosClient, "DatabaseId", "ContainerId").GetAwaiter().GetResult();
         }
 
         public async Task AddTransactionAsync(TransactionModel transaction)
         {
             ArgumentNullException.ThrowIfNull(transaction);
-            await _container.CreateItemAsync(transaction, new PartitionKey(transaction.Id)).ConfigureAwait(true);
+            await _container.CreateItemAsync(transaction, new PartitionKey(transaction.Id)).ConfigureAwait(false);
         }
 
         public async Task RemoveTransactionAsync(string transactionId)
         {
             ArgumentNullException.ThrowIfNull(transactionId);
-            await _container.DeleteItemAsync<TransactionModel>(transactionId, new PartitionKey(transactionId)).ConfigureAwait(true);
+            await _container.DeleteItemAsync<TransactionModel>(transactionId, new PartitionKey(transactionId)).ConfigureAwait(false);
         }
     }
 }

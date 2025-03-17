@@ -1,3 +1,4 @@
+using BankingService.Models;
 using Microsoft.OpenApi.MicrosoftExtensions;
 using RabbitMQ.Client;
 using System.Text;
@@ -23,17 +24,17 @@ namespace BankingService.Logic
             _channel.QueueDeclareAsync(queue: "auth_response_queue", durable: true, exclusive: false, autoDelete: false, arguments: null).GetAwaiter().GetResult();
         }
 
-        public async Task SendMessageAsync<T>(T message)
+        public async Task SendMessageAsync(string message)
         {
             try
             {
-                var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-
                 var properties = new BasicProperties
                 {
                     ContentType = "application/json",
                     DeliveryMode = (DeliveryModes)2 // Persistent delivery mode
                 };
+
+                var body = Encoding.UTF8.GetBytes(message);
 
                 await _channel.BasicPublishAsync(
                     exchange: "",

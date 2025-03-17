@@ -17,6 +17,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 
 	<ItemGroup>

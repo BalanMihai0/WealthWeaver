@@ -3,7 +3,6 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 using UserService.Interfaces;
-using UserService.Models;
 
 namespace UserService.Services
 {
@@ -26,39 +25,49 @@ namespace UserService.Services
 
         public void StartListening()
         {
+            _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false).GetAwaiter().GetResult();
+
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (model, ea) =>
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                var validateTokenMessage = JsonSerializer.Deserialize<ValidateTokenRequest>(message);
-
-                if (validateTokenMessage != null)
+                try
                 {
-                    _logger.LogInformation("Received message from 'auth_queue': {Message}", message);
-                    bool isValid = await _tokenVerifier.VerifyTokenAsync(validateTokenMessage.Token).ConfigureAwait(true);
-                    var responseMessage = new { IsValid = isValid };
-                    var responseBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(responseMessage));
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
 
-                    var properties = new BasicProperties
+                    if (message != null)
                     {
-                        ContentType = "application/json",
-                        DeliveryMode = (DeliveryModes)2 // Persistent
-                    };
+                        _logger.LogInformation("Received message from 'auth_queue': {Message}", message);
+                        bool responseIsTokenValid = await _tokenVerifier.VerifyTokenAsync(message).ConfigureAwait(true);
+                        string responseMessage = responseIsTokenValid.ToString(Constants.DefaultCulture);
+                        var responseBody = Encoding.UTF8.GetBytes(responseMessage);
 
-                    await _channel.BasicPublishAsync(
-                        exchange: "",
-                        routingKey: validateTokenMessage.ResponseQueue,
-                        mandatory: false,
-                        basicProperties: properties,
-                        body: responseBody
-                    ).ConfigureAwait(true);
+                        var properties = new BasicProperties
+                        {
+                            ContentType = "application/json",
+                            DeliveryMode = (DeliveryModes)2 // Persistent
+                        };
 
-                    _logger.LogInformation("Sent response to queue '{Queue}': {Response}", validateTokenMessage.ResponseQueue, JsonSerializer.Serialize(responseMessage));
+                        await _channel.BasicPublishAsync(
+                            exchange: "",
+                            routingKey: "auth_response_queue",
+                            mandatory: false,
+                            basicProperties: properties,
+                            body: responseBody
+                        ).ConfigureAwait(false);
+
+                        _logger.LogInformation("Sent response to queue '{Queue}': {Response}", "auth_response_queue", responseIsTokenValid);
+                    }
+
+                    // Acknowledge the message
+                    await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false).ConfigureAwait(false);
                 }
-
-                // Acknowledge the message
-                await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false).ConfigureAwait(true);
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing message");
+                    // Nack the message and don't requeue it if it's a persistent error
+                    await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false).ConfigureAwait(false);
+                }
             };
 
             _channel.BasicConsumeAsync(
@@ -70,8 +79,8 @@ namespace UserService.Services
 
         public async Task StopListeningAsync()
         {
-            await _channel.CloseAsync().ConfigureAwait(true);
-            await _connection.CloseAsync().ConfigureAwait(true);
+            await _channel.CloseAsync().ConfigureAwait(false);
+            await _connection.CloseAsync().ConfigureAwait(false);
         }
     }
 }

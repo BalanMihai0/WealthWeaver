@@ -1,5 +1,6 @@
 ﻿using UserService.Interfaces;
 using UserService.Services;
+using UserService.Models;
 
 namespace UserService
 {
@@ -8,6 +9,8 @@ namespace UserService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Configuration.AddJsonFile("env.jsonc", optional: false, reloadOnChange: true);
 
             // Configure services
             builder.Services.AddEndpointsApiExplorer();
@@ -18,6 +21,9 @@ namespace UserService
             builder.Services.AddControllers();
             builder.Services.AddSingleton<ITokenVerifier, TokenVerifier>();
             builder.Services.AddSingleton<RabbitMqListener>();
+
+            // Register CloudflareOptions
+            builder.Services.Configure<CloudflareOptions>(builder.Configuration.GetSection("Cloudflare"));
 
             // Configure logging
             builder.Logging.ClearProviders();

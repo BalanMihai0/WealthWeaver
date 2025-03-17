@@ -16,15 +16,14 @@ namespace BankingService.Controllers
         }
 
         [HttpPost("validate")]
-        public async Task<IActionResult> ConfirmAuthorization([FromBody] ValidateTokenMessage request)
+        public async Task<IActionResult> ConfirmAuthorization([FromBody] string request)
         {
             if (request == null)
             {
                 return BadRequest();
             }
 
-            var message = new ValidateTokenMessage { Token = request.Token, ResponseQueue = "auth_response_queue" };
-            await _rabbitMqClient.SendMessageAsync(message).ConfigureAwait(true);
+            await _rabbitMqClient.SendMessageAsync(request).ConfigureAwait(true);
 
             return Ok();
         }

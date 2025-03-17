@@ -2,22 +2,24 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Interfaces;
+using UserService.Models;
+using Microsoft.Extensions.Options;
 
 namespace UserService.Services
 {
     internal sealed class TokenVerifier : ITokenVerifier
     {
-        private readonly IConfiguration _configuration;
+        private readonly CloudflareOptions _cloudflareOptions;
 
-        public TokenVerifier(IConfiguration configuration)
+        public TokenVerifier(IOptions<CloudflareOptions> options)
         {
-            _configuration = configuration;
+            _cloudflareOptions = options.Value;
         }
 
         public async Task<bool> VerifyTokenAsync(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Cloudflare:Secret"]!);
+            var key = Encoding.ASCII.GetBytes(_cloudflareOptions.Secret);
             ArgumentNullException.ThrowIfNull(key);
 
             try
@@ -27,9 +29,9 @@ namespace UserService.Services
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
-                    ValidIssuer = _configuration["Cloudflare:Issuer"],
+                    ValidIssuer = _cloudflareOptions.Issuer,
                     ValidateAudience = true,
-                    ValidAudience = _configuration["Cloudflare:Audience"],
+                    ValidAudience = _cloudflareOptions.Audience,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
